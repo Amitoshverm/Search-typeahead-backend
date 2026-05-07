@@ -3,6 +3,7 @@ package com.bookmarks.TypeAhead.authentication;
 import com.bookmarks.TypeAhead.config.JwtAuthFilter;
 import com.bookmarks.TypeAhead.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +30,9 @@ public class SpringSecurity {
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService customUserDetailsService;
 
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
+
     public SpringSecurity(JwtAuthFilter jwtAuthFilter,
                           CustomUserDetailsService customUserDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -42,7 +46,7 @@ public class SpringSecurity {
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(auth ->
-                auth.requestMatchers("/user/signup", "/user/login", "/user/signin", "/search/suggest", "/search/query").permitAll()
+                auth.requestMatchers("/user/signup", "/user/login").permitAll()
                         .anyRequest().authenticated()
         );
         http.authenticationProvider(authenticationProvider());
@@ -66,7 +70,7 @@ public class SpringSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOrigins(List.of(allowedOrigin));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

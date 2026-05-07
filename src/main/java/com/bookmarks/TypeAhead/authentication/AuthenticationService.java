@@ -14,9 +14,9 @@ import java.util.Optional;
 @Service
 public class AuthenticationService {
 
-    private UserRepository userRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private JwtService jwtService;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtService jwtService;
 
     public AuthenticationService(UserRepository userRepository,
                                  BCryptPasswordEncoder bCryptPasswordEncoder,
@@ -26,14 +26,13 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    public UserResponseDto signUp(SignUpUserDto signUpUserDto) throws Exception{
+    public UserResponseDto signUp(SignUpUserDto signUpUserDto) {
         Optional<Users> user = this.userRepository.findByEmail(signUpUserDto.getEmail());
 
         if (user.isPresent()) {
             throw new RuntimeException("User Already Exists");
         }
 
-//        Users getUser = user.get();
         String hashedPassword = this.bCryptPasswordEncoder.encode(signUpUserDto.getPassword());
 
         Users userForDb = new Users();
@@ -44,11 +43,7 @@ public class AuthenticationService {
 
         String token = this.jwtService.generateToken(userForDb.getEmail());
 
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setDisplayName(userForDb.getDisplayName());
-        userResponseDto.setEmail(userForDb.getEmail());
-        userResponseDto.setToken(token);
-        return userResponseDto;
+        return buildResponse(userForDb, token);
     }
 
     public UserResponseDto signIn(String email, String password) {
@@ -65,10 +60,14 @@ public class AuthenticationService {
 
         String token = this.jwtService.generateToken(userForDb.getEmail());
 
+        return buildResponse(userForDb, token);
+    }
+
+    public UserResponseDto buildResponse (Users user, String token ) {
         UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setDisplayName(userForDb.getDisplayName());
-        userResponseDto.setEmail(userForDb.getEmail());
+        userResponseDto.setDisplayName(user.getDisplayName());
+        userResponseDto.setEmail(user.getEmail());
         userResponseDto.setToken(token);
-        return  userResponseDto;
+        return userResponseDto;
     }
 }

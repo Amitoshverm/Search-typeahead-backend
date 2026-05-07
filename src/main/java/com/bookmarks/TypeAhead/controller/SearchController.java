@@ -30,6 +30,6 @@ public class SearchController {
         String clean = word.toLowerCase().replaceAll("[^a-z]", "");
         if (clean.length() < 2) return new ResponseEntity<>(HttpStatus.OK);
         searchService.searchWord(clean);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -49,6 +49,7 @@ public class Trie {
         // step 1 — walk to end of prefix
         for (int i = 0; i < prefix.length(); i++) {
             int index = prefix.charAt(i) - 'a';
+            if (index < 0 || index >= 26) return results;
             if (current.children[index] == null) {
                 return results; // prefix not found
             }
